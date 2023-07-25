@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS public.boe
+(
+    id integer NOT NULL DEFAULT nextval('boesequence'::regclass),
+    date timestamp without time zone,
+    averagewage real,
+    population bigint,
+    inflationrate real,
+    supplyfactor real,
+    tctsupply numeric,
+    cbdcsupply numeric,
+    tctbuysell numeric,
+    cbdcmonetarypolicy numeric,
+    tctgbdc numeric,
+    tctcircsupply numeric,
+    tctmarketcap numeric
+)
+
+CREATE TABLE IF NOT EXISTS public.day
+(
+    id integer NOT NULL DEFAULT nextval('daysequence'::regclass),
+    date timestamp without time zone,
+    day integer
+)
+
+CREATE TABLE IF NOT EXISTS public.global
+(
+    id integer NOT NULL DEFAULT nextval('globalsequence'::regclass),
+    date timestamp without time zone,
+    country character varying COLLATE pg_catalog."default",
+    averagewageusd real,
+    wagereltofiat real,
+    population integer,
+    averagetcttoaveragewage real,
+    averagetctusdppp real,
+    tctsupply numeric,
+    cbdcsupply numeric,
+    tctcbdc real,
+    tctmarketcap numeric
+)
+
+CREATE TABLE IF NOT EXISTS public.secret
+(
+    id integer NOT NULL DEFAULT nextval('secretsequence'::regclass),
+    date timestamp without time zone,
+    secretkey character varying COLLATE pg_catalog."default",
+    secretphrase character varying COLLATE pg_catalog."default"
+)
+
+
+CREATE TABLE IF NOT EXISTS public.supplyfactor
+(
+    id integer NOT NULL DEFAULT nextval('supplyfactorsequence'::regclass),
+    date timestamp without time zone,
+    supplyfactor character varying COLLATE pg_catalog."default"
+)

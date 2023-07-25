@@ -23,6 +23,8 @@ could actually be reduced over time.
 
 **Usage**
 
-Running the BoEBlockahin app will run UKTCTInitial, which in turn runs UKTCTv2 using CLI arguments 'uktctinitial uktctv2'.
+Create a postgres database called deflationtoken and add the tables as displayed in 'tablesSQL'.
+
+Running the BoEBlockhain Java app will run UKTCTInitial, which in turn runs UKTCTv2 using CLI arguments 'uktctinitial uktctv2'.
 
 You will see the modelling in the console running for a two year period based on historical inflation rates which calculates the volume of tokens to be burnt or minted each month to maintain a fixed supply of the UK Digital Pound. Also displayed is the token to CBDC exchange rate and token supply, along with sample token quotas given to a 50 year old citizen and an 18 year old. 

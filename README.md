@@ -23,7 +23,7 @@ could actually be reduced over time.
 
 **Usage**
 
-Create a postgres database called deflationtoken and add the tables as displayed in 'tablesSQL'. You will need the secretkey and secretphrase fields for the 'secret' table for the calculations to be processed. Please message me here if you wish to acquire them.
+Create a postgres database called deflationtoken and add the tables as displayed in 'tablesSQL'. You will need the secretkey and secretphrase fields populated in the 'secret' table for the calculations to be processed. Please message me at antjsmith@protonmail.com if you wish to acquire them.
 
 Running the BoEBlockhain Java app will run UKTCTInitial, which in turn runs UKTCTv2 using CLI arguments 'uktctinitial uktctv2'.
 

@@ -329,11 +329,13 @@ public class UKTCTv2 {
         }
     }
         public static Double calculateSupplyFactor(Double UKnationalinflationrate, Double UKpreviousnationalinflationrate, Double UKnationalinflationtarget) {
-            if (UKnationalinflationrate >= UKnationalinflationtarget) {
+            if (UKpreviousnationalinflationrate == 0) {
+                UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - UKnationalinflationrate));
+            } else if ((UKnationalinflationrate >= UKnationalinflationtarget) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0)) {
                 UKsupplyfactor = (UKaveragewagePPP / 365) * (1 - (Math.abs((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
-            } else if (UKnationalinflationrate == 0) {
+            } else if ((UKnationalinflationrate < UKnationalinflationtarget) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0) && (UKnationalinflationrate == 0)) {
                 UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate))));
-            } else if (UKnationalinflationrate < 0) {
+            } else if ((UKnationalinflationrate < 0) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0)) {
                 UKsupplyfactor = ((UKaveragewagePPP / 365) * (1 - Math.abs(((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate))));
             } else {
                 UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));

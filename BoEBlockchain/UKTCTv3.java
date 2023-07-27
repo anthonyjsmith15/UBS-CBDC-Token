@@ -16,7 +16,8 @@ public class UKTCTv3 {
     /**
      * The current inflation rate goes into previousnationalinflationrate
      */
-    public static Double UKpreviousnationalinflationrate = 9.0;
+    public static Double UKpreviousnationalinflationrate = 0.0;
+    public static Double UKtwicepreviousnationalinflationrate = 0.0;
     /**
      * The factor to apply to the wallet quotas to determine the value of the tokens received
      */
@@ -39,7 +40,10 @@ public class UKTCTv3 {
     public static String yesterday = "";
     public static String tomorrow = "";
     public static Double UKinitialsupplyfactor = 0.0;
-    public static Long UKTCTsupply = 292555087500L;
+    public static Long UKTCTsupply = 0L;
+
+    public static Long UKPrevTCTSupply = 0L;
+    public static Long UKPrevTCTbuysell = 0L;
     public static Long GBDCsupply = 88855000000L;
     public static Long UKTCTbuysell = 0L;
     public static Double UKTCTGBDC = 0.0;
@@ -140,7 +144,7 @@ public class UKTCTv3 {
         date = day + ", " + month + ", " + year;
         String currenttimedate = date + " " + hours + ":" + minutes + ":" + seconds;
 
-        if (day <= 365) {
+        if (day <= 731) {
 
             day = retrieveDayFromPostgres();
             if (day >= 32 && day < 60) {
@@ -173,12 +177,55 @@ public class UKTCTv3 {
             else if (day >= 305 && day < 335) {
                 currentmonth = 11;
             }
-            else if (day == 365) {
+            else if (day >= 335 && day < 365) {
                 currentmonth = 12;
             }
-            UKpreviousnationalinflationrate = retrieveInflationRateFromPostgres();
+            else if (day >= 365 && day < 397) {
+                currentmonth = 13;
+            }
+            else if (day >= 397 && day < 425) {
+                currentmonth = 14;
+            }
+            else if (day >= 425 && day < 456) {
+                currentmonth = 15;
+            }
+            else if (day >= 456 && day < 486) {
+                currentmonth = 16;
+            }
+            else if (day >= 486 && day < 517) {
+                currentmonth = 17;
+            }
+            else if (day >= 517 && day < 547) {
+                currentmonth = 18;
+            }
+            else if (day >= 547 && day < 578) {
+                currentmonth = 19;
+            }
+            else if (day >= 578 && day < 608) {
+                currentmonth = 20;
+            }
+            else if (day >= 608 && day < 639) {
+                currentmonth = 21;
+            }
+            else if (day >= 639 && day < 669) {
+                currentmonth = 22;
+            }
+            else if (day >= 669 && day < 700) {
+                currentmonth = 23;
+            }
+            else if (day >= 700 && day < 731) {
+                currentmonth = 24;
+            }
+            if (currentmonth == 1) {
+                UKpreviousnationalinflationrate = 0.0;
+            }
+            else {
+                UKpreviousnationalinflationrate = retrieveInflationRateFromPostgres();
+                UKtwicepreviousnationalinflationrate = retrievePrevInflationRateFromPostgres();
+            }
             GBDCsupply = retrieveCBDCSupplyFromPostgres();
             UKTCTsupply = retrieveUBSSupplyFromPostgres();
+            UKPrevTCTbuysell = retrieveUKTCTPrevbuysellFromPostgres();
             System.out.println("Day: " + day);
             quotasum = fillWallets();
 
@@ -237,36 +284,46 @@ public class UKTCTv3 {
             UKsupplyfactor = Double.valueOf(encryptedFactor);
 
             if (day == 32 || day == 60 || day == 91 || day == 121 || day == 152 || day == 182 || day == 213
-                    || day == 244 || day == 274 || day == 305 || day == 335 || day == 365) {
+                    || day == 244 || day == 274 || day == 305 || day == 335 || day == 365 || (day == 397)
+                    || (day == 425) || (day == 456) || (day == 486) || (day == 517)
+                    || (day == 547) || (day == 578) || (day == 608) || (day == 639) || (day == 669)
+                    || (day == 700)) {
 
-                if (UKnationalinflationrate >= UKnationalinflationtarget && UKnationalinflationrate >= UKpreviousnationalinflationrate) {
-                    UKTCTbuysell = (long) ((Double.valueOf(UKTCTsupply) * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
-                } else if (UKnationalinflationrate >= UKnationalinflationtarget && UKnationalinflationrate < UKpreviousnationalinflationrate) {
-                    UKTCTbuysell = (long) (Math.abs(((Double.valueOf(UKTCTsupply) * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor)));
-                } else if (UKnationalinflationrate == 0.0 && UKpreviousnationalinflationrate == 0.0) {
-                    UKTCTbuysell = 0L;
-                } else if (UKpreviousnationalinflationrate == 0 && UKnationalinflationrate > 0) {
-                    if (UKnationalinflationrate < UKnationalinflationtarget && UKpreviousnationalinflationrate == 0)
-                        UKTCTbuysell = (long) ((UKTCTsupply * ((((UKnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
-                } else if (UKnationalinflationrate < UKnationalinflationtarget) {
-                    UKTCTbuysell = (long) Math.abs(((UKTCTsupply * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor));
+                if ((UKTCTbuysell <= 0) && (UKpreviousnationalinflationrate > UKnationalinflationtarget) && (UKpreviousnationalinflationrate >= UKtwicepreviousnationalinflationrate)) {
+                    UKTCTsupply = UKTCTsupply + UKPrevTCTbuysell;
                 }
-
-                if (UKTCTbuysell <= 0 && UKnationalinflationrate > UKnationalinflationtarget && UKnationalinflationrate >= UKpreviousnationalinflationrate) {
-                    UKTCTsupply = UKTCTsupply + UKTCTbuysell;
-                }
-                else if (UKTCTbuysell <= 0 && UKnationalinflationrate > UKnationalinflationtarget && UKnationalinflationrate < UKpreviousnationalinflationrate) {
+                else if ((UKTCTbuysell <= 0) && (UKpreviousnationalinflationrate > UKnationalinflationtarget) && (UKpreviousnationalinflationrate < UKtwicepreviousnationalinflationrate)) {
                     UKTCTsupply = UKTCTsupply;
                 }
-                else if (UKTCTbuysell <= 0 && UKnationalinflationrate < UKnationalinflationtarget && UKnationalinflationrate < UKpreviousnationalinflationrate) {
+                else if ((UKTCTbuysell <= 0) && (UKpreviousnationalinflationrate < UKnationalinflationtarget) && (UKpreviousnationalinflationrate < UKtwicepreviousnationalinflationrate)) {
                     UKTCTsupply = UKTCTsupply;
                 }
-                else if (UKTCTbuysell > 0 && UKnationalinflationrate >= 0) {
-                    UKTCTsupply = UKTCTsupply + UKTCTbuysell;
+                else if ((UKTCTbuysell > 0) && (UKpreviousnationalinflationrate >= 0)) {
+                    UKTCTsupply = UKTCTsupply + UKPrevTCTbuysell;
                 }
                 else {
                     UKTCTsupply = UKTCTsupply;
                 }
+
+                if ((UKnationalinflationrate >= UKnationalinflationtarget) && (UKnationalinflationrate >= UKpreviousnationalinflationrate)) {
+                    UKTCTbuysell = (long) (((UKTCTsupply) * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
+                    System.out.println(1);
+                } else if ((UKnationalinflationrate >= UKnationalinflationtarget) && (UKnationalinflationrate < UKpreviousnationalinflationrate)) {
+                    UKTCTbuysell = (long) Math.abs((UKTCTsupply * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
+                    System.out.println(2);
+                } else if (UKnationalinflationrate == 0.0 && UKpreviousnationalinflationrate == 0.0) {
+                    UKTCTbuysell = 0L;
+                } else if (UKpreviousnationalinflationrate == 0 && UKnationalinflationrate > 0) {
+                    if ((UKnationalinflationrate < UKnationalinflationtarget) && UKpreviousnationalinflationrate == 0)
+                        UKTCTbuysell = (long) ((UKTCTsupply * ((((UKnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
+                    System.out.println(3);
+                } else if (UKnationalinflationrate < UKnationalinflationtarget) {
+                    UKTCTbuysell = (long) Math.abs((UKTCTsupply * ((((UKnationalinflationrate / UKpreviousnationalinflationrate) * 0.1) - 1) * 100) / 100) / UKsupplyfactor);
+                    System.out.println(4);
+                }
+                UKPrevTCTSupply = UKTCTsupply;
+
+
 
                 if (UKTCTbuysell <= 0 && UKnationalinflationrate > UKnationalinflationtarget && UKnationalinflationrate >= UKpreviousnationalinflationrate) {
                     UKTCTGBDC = (Double.valueOf(GBDCsupply) / Double.valueOf(UKTCTsupply));
@@ -278,7 +335,7 @@ public class UKTCTv3 {
                     GBDCmonetarypolicy = (long) (Math.abs(Double.valueOf(UKTCTbuysell) * UKTCTGBDC));
                     GBDCsupply = (long) (GBDCsupply);
                 }
-                else if (UKTCTbuysell > 0 && UKnationalinflationrate > UKnationalinflationtarget && UKnationalinflationrate < UKpreviousnationalinflationrate) {
+                else if (UKTCTbuysell > 0 && (UKnationalinflationrate > UKnationalinflationtarget) && (UKnationalinflationrate < UKpreviousnationalinflationrate)) {
                     UKTCTGBDC = (Double.valueOf(GBDCsupply) / Double.valueOf(UKTCTsupply));
                     GBDCmonetarypolicy = (long) (Math.abs(Double.valueOf(UKTCTbuysell) * UKTCTGBDC));
                     GBDCsupply = (long) (GBDCsupply + (GBDCsupply * ((UKTCTbuysell / UKTCTsupply) * (UKnationalinflationrate / 100))));
@@ -308,6 +365,7 @@ public class UKTCTv3 {
                 UKTCTcirculatingsupply = (long) (quotasum * (Double.valueOf(UKpopulation) / 10));
                 UKTCTmarketcap = (long) (Double.valueOf(UKTCTcirculatingsupply) * UKTCTGBDC);
 
+                System.out.println("Supply Factor: " + UKsupplyfactor);
                 System.out.println("TCT Exchange Rate: " + UKTCTGBDC);
                 System.out.println("GBDC Supply: " + GBDCsupply);
                 System.out.println("TCT Supply: " + UKTCTsupply);
@@ -317,7 +375,7 @@ public class UKTCTv3 {
                 System.out.println("50 year old monthly quota value: " + (((TokenQuotas.Quota.valueOf(String.valueOf(citizen9age)).id) * quotafactor) * UKTCTGBDC));
                 System.out.println("18 year old monthly quota value: " + (((TokenQuotas.Quota.valueOf(String.valueOf(citizen3age)).id) * quotafactor) * UKTCTGBDC));
                 insertIntoPostgres();
-                if (day == 365) {
+                if (day == 365 || day == 730) {
                     insertIntoGlobal();
                 }
             }
@@ -530,6 +588,40 @@ public class UKTCTv3 {
                 return UKpreviousnationalinflationrate;
             }
             return UKpreviousnationalinflationrate;
+        }
+    }
+
+    public static Double retrievePrevInflationRateFromPostgres() throws SQLException {
+
+        String SQLinflationrate = "SELECT inflationrate from boe order by id desc LIMIT 1 OFFSET 1";
+
+        Connection conn = connectpostgres();
+        PreparedStatement pstmt = conn.prepareStatement(SQLinflationrate);
+        {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                UKtwicepreviousnationalinflationrate = Double.valueOf(rs.getString(1));
+                conn.close();
+                return UKtwicepreviousnationalinflationrate;
+            }
+            return UKtwicepreviousnationalinflationrate;
+        }
+    }
+
+    public static Long retrieveUKTCTPrevbuysellFromPostgres() throws SQLException {
+
+        String SQLinflationrate = "SELECT tctbuysell from boe order by id desc LIMIT 1";
+
+        Connection conn = connectpostgres();
+        PreparedStatement pstmt = conn.prepareStatement(SQLinflationrate);
+        {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                UKPrevTCTbuysell = Long.valueOf(rs.getString(1));
+                conn.close();
+                return UKPrevTCTbuysell;
+            }
+            return UKPrevTCTbuysell;
         }
     }
     public static String retrieveSupplyFactorFromPostgres() throws SQLException {

@@ -19,7 +19,7 @@ public class UKTCTv2 {
      * The current inflation rate goes into previousnationalinflationrate
      *
      */
-    public static Double UKpreviousnationalinflationrate = 11.1;
+    public static Double UKpreviousnationalinflationrate = 0.0;
     /**
      * The factor to apply to the wallet quotas to determine the value of the tokens received
      */
@@ -121,11 +121,7 @@ public class UKTCTv2 {
 
     public static void main() throws InterruptedException, SQLException {
 
-        UKWageRate averagewage = new UKWageRate();
-        UKaveragewagePPP = averagewage.UKwageYear1;
-        UKTCTsupplywages = (UKaveragewagePPP / averageofaveragewages);
-        UKPopulation pop = new UKPopulation();
-        UKpopulation = pop.UKYear1;
+
 
         millis = (long) Calendar.getInstance(TimeZone.getTimeZone("Europe/London"), Locale.UK).get(Calendar.MILLISECOND);
         minutes = Calendar.getInstance(TimeZone.getTimeZone("Europe/London"), Locale.UK).get(Calendar.MINUTE);
@@ -144,8 +140,15 @@ public class UKTCTv2 {
         date = day + ", " + month + ", " + year;
         String currenttimedate = date + " " + hours + ":" + minutes + ":" + seconds;
 
-        while (day < 366) {
+        while (day < 731) {
             //quotasum = fillWallets();
+            if (day < 366) {
+
+                UKWageRate averagewage = new UKWageRate();
+                UKaveragewagePPP = averagewage.UKwageYear1;
+                UKTCTsupplywages = (UKaveragewagePPP / averageofaveragewages);
+                UKPopulation pop = new UKPopulation();
+                UKpopulation = pop.UKYear1;
 
             if (currentmonth == 1)
                 UKnationalinflationrate = inflationrate.getMonth1Inflation();
@@ -199,23 +202,34 @@ public class UKTCTv2 {
             insertDayIntoPostgres();
 //            SECRET_KEY = retrieveSecretKeyFromPostgres();
 //            SALTVALUE = retrieveSaltvalueFromPostgres();
-            UKpreviousnationalinflationrate = retrieveInflationRateFromPostgres();
+            if (currentmonth == 1) {
+                UKpreviousnationalinflationrate = 0.0;
+            }
+            else {
+                UKpreviousnationalinflationrate = retrieveInflationRateFromPostgres();
+            }
             UKsupplyfactorencrypted = String.valueOf(calculateSupplyFactor(UKnationalinflationrate, UKpreviousnationalinflationrate, UKnationalinflationtarget));
             insertFactorIntoPostgres();
             UKTCTv3.main();
 
             day = day + 1;
-            if (day == 32 || day == 60 || day == 91 || day == 121 || day == 152 || day == 182 || day == 213
-                    || day == 244 || day == 274 || day == 305 || day == 335 || day == 365)
+            if ((day == 32) || (day == 60) || (day == 91) || (day == 121) || (day == 152) || (day == 182) || (day == 213)
+                    || (day == 244) || (day == 274) || (day == 305) || (day == 335) || (day == 365)
+                    || (day == 397) || (day == 425) || (day == 456) || (day == 486) || (day == 517)
+                    || (day == 547) || (day == 578) || (day == 608) || (day == 639) || (day == 669)
+                    || (day == 700) || (day == 730))
                 currentmonth = currentmonth + 1;
+        }
 
-            if (day == 366) {
-                day = 1;
-                currentmonth = 13;
+            if (day >= 366) {
+                //day = 1;
+                //currentmonth = 13;
+                UKWageRate averagewage = new UKWageRate();
+                UKPopulation pop = new UKPopulation();
                 UKaveragewagePPP = averagewage.UKwageYear2;
                 UKpopulation = pop.UKYear2;
 
-                while (day < 366) {
+                while (day < 731) {
                     //quotasum = fillWallets();
 
                     if (currentmonth == 1)
@@ -243,44 +257,46 @@ public class UKTCTv2 {
                     if (currentmonth == 12)
                         UKnationalinflationrate = inflationrate.getMonth12inflation();
                     if (currentmonth == 13)
-                        UKnationalinflationrate = inflationrate.getMonth1Inflation();
+                        UKnationalinflationrate = inflationrate.getMonth13Inflation();
                     if (currentmonth == 14)
-                        UKnationalinflationrate = inflationrate.getMonth2inflation();
+                        UKnationalinflationrate = inflationrate.getMonth14Inflation();
                     if (currentmonth == 15)
-                        UKnationalinflationrate = inflationrate.getMonth3inflation();
+                        UKnationalinflationrate = inflationrate.getMonth15Inflation();
                     if (currentmonth == 16)
-                        UKnationalinflationrate = inflationrate.getMonth4inflation();
+                        UKnationalinflationrate = inflationrate.getMonth16Inflation();
                     if (currentmonth == 17)
-                        UKnationalinflationrate = inflationrate.getMonth5inflation();
+                        UKnationalinflationrate = inflationrate.getMonth17Inflation();
                     if (currentmonth == 18)
-                        UKnationalinflationrate = inflationrate.getMonth6inflation();
+                        UKnationalinflationrate = inflationrate.getMonth18Inflation();
                     if (currentmonth == 19)
-                        UKnationalinflationrate = inflationrate.getMonth7inflation();
+                        UKnationalinflationrate = inflationrate.getMonth19Inflation();
                     if (currentmonth == 20)
-                        UKnationalinflationrate = inflationrate.getMonth8inflation();
+                        UKnationalinflationrate = inflationrate.getMonth20inflation();
                     if (currentmonth == 21)
-                        UKnationalinflationrate = inflationrate.getMonth9inflation();
+                        UKnationalinflationrate = inflationrate.getMonth21inflation();
                     if (currentmonth == 22)
-                        UKnationalinflationrate = inflationrate.getMonth10inflation();
+                        UKnationalinflationrate = inflationrate.getMonth22inflation();
                     if (currentmonth == 23)
-                        UKnationalinflationrate = inflationrate.getMonth11inflation();
+                        UKnationalinflationrate = inflationrate.getMonth23inflation();
                     if (currentmonth == 24)
-                        UKnationalinflationrate = inflationrate.getMonth12inflation();
+                        UKnationalinflationrate = inflationrate.getMonth24inflation();
 
                     insertDayIntoPostgres();
                     //            SECRET_KEY = retrieveSecretKeyFromPostgres();
                     //            SALTVALUE = retrieveSaltvalueFromPostgres();
                     UKpreviousnationalinflationrate = retrieveInflationRateFromPostgres();
                     UKsupplyfactorencrypted = String.valueOf(calculateSupplyFactor(UKnationalinflationrate, UKpreviousnationalinflationrate, UKnationalinflationtarget));
-                    //insertFactorIntoPostgres();
+                    insertFactorIntoPostgres();
                     UKTCTv3.main();
 
                     day = day + 1;
-                    if (day == 32 || day == 60 || day == 91 || day == 121 || day == 152 || day == 182 || day == 213
-                            || day == 244 || day == 274 || day == 305 || day == 335)
+                    if ((day == 60) || (day == 91) || (day == 121) || (day == 152) || (day == 182) || (day == 213)
+                            || (day == 244) || (day == 274) || (day == 305) || (day == 335) || (day == 365)
+                            || (day == 397) || (day == 425) || (day == 456) || (day == 486) || (day == 517)
+                            || (day == 547) || (day == 578) || (day == 608) || (day == 639) || (day == 669)
+                            || (day == 700) || (day == 730))
                         currentmonth = currentmonth + 1;
-
-                    if (day == 366) {
+                    if (day == 730) {
                         break;
                     }
                 }

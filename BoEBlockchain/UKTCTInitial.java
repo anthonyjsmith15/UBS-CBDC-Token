@@ -195,20 +195,21 @@ public class UKTCTInitial {
         if (currentmonth == 24)
             UKnationalinflationrate = inflationrate.getMonth12inflation();
 
-        if (UKnationalinflationrate >= UKnationalinflationtarget) {
-            UKsupplyfactor = (UKaveragewagePPP / 365) * (1 - (Math.abs((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
-        } else if (UKnationalinflationrate == 0) {
-            UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate))));
-        } else if (UKnationalinflationrate < 0) {
-            UKsupplyfactor = ((UKaveragewagePPP / 365) * (1 - Math.abs(((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate))));
-        } else {
-            UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
-        }
+//        if (UKnationalinflationrate >= UKnationalinflationtarget) {
+//            UKsupplyfactor = (UKaveragewagePPP / 365) * (1 - (Math.abs((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
+//        } else if (UKnationalinflationrate == 0) {
+//            UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate))));
+//        } else if (UKnationalinflationrate < 0) {
+//            UKsupplyfactor = ((UKaveragewagePPP / 365) * (1 - Math.abs(((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate))));
+//        } else {
+//            UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
+//        }
         GBDCsupply =  88855000000L; //(long) ((UKTCTsupply / (UKnationalinflationtarget * UKnationalinflationtarget)) * (1 / USDGBP));
-        UKinitialsupplyfactor = (GBDCsupply / UKpopulation) / ((UKnationalinflationtarget * UKnationalinflationtarget) * 100); // ((UKsupplyfactor * 10000000) / Double.valueOf(UKpopulation));
+        //UKinitialsupplyfactor = (GBDCsupply / UKpopulation) / ((UKnationalinflationtarget * UKnationalinflationtarget) * 100); // ((UKsupplyfactor * 10000000) / Double.valueOf(UKpopulation));
+        UKinitialsupplyfactor = (3.29);
 
         if (day == 1 && currentmonth == 1) {
-            UKTCTsupply = (long) (GBDCsupply * UKinitialsupplyfactor);
+            UKTCTsupply =  292675379041L; //(long) (GBDCsupply * UKinitialsupplyfactor);
 //                    ((((((citizen1.get("walletQuota") * quotafactor + citizen2.get("walletQuota") * quotafactor +
 //                    citizen3.get("walletQuota") * quotafactor + citizen4.get("walletQuota") * quotafactor +
 //                    citizen5.get("walletQuota") * quotafactor + citizen6.get("walletQuota") * quotafactor +
@@ -226,7 +227,7 @@ public class UKTCTInitial {
         insertDayIntoPostgres();
         SECRET_KEY = retrieveSecretKeyFromPostgres();
         SALTVALUE = retrieveSaltvalueFromPostgres();
-        UKsupplyfactorencrypted = encrypt(String.valueOf(calculateSupplyFactor()));
+        UKsupplyfactorencrypted = encrypt(String.valueOf(calculateSupplyFactor(UKnationalinflationrate, UKpreviousnationalinflationrate, UKnationalinflationtarget)));
         insertFactorIntoPostgres();
         //swapCMPforDGBP();
         System.out.println("Postgres updated.");
@@ -286,12 +287,14 @@ public class UKTCTInitial {
         return null;
     }
 
-    public static Double calculateSupplyFactor() {
-        if (UKnationalinflationrate >= UKnationalinflationtarget) {
+    public static Double calculateSupplyFactor(Double UKnationalinflationrate, Double UKpreviousnationalinflationrate, Double UKnationalinflationtarget) {
+        if (UKpreviousnationalinflationrate == 0) {
+            UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - UKnationalinflationrate));
+        } else if ((UKnationalinflationrate >= UKnationalinflationtarget) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0)) {
             UKsupplyfactor = (UKaveragewagePPP / 365) * (1 - (Math.abs((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
-        } else if (UKnationalinflationrate == 0) {
+        } else if ((UKnationalinflationrate < UKnationalinflationtarget) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0) && (UKnationalinflationrate == 0)) {
             UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate))));
-        } else if (UKnationalinflationrate < 0) {
+        } else if ((UKnationalinflationrate < 0) && (UKpreviousnationalinflationrate > 0 || UKpreviousnationalinflationrate < 0)) {
             UKsupplyfactor = ((UKaveragewagePPP / 365) * (1 - Math.abs(((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate))));
         } else {
             UKsupplyfactor = ((UKaveragewagePPP / 365) * (UKnationalinflationtarget - ((UKnationalinflationrate - UKpreviousnationalinflationrate) / UKnationalinflationrate)));
